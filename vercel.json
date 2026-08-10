@@ -1,11 +1,6 @@
 {
-  "projectName": "flood-safe",
-  "public": true,
-  "buildCommand": "npm run build",
-  "devCommand": "npm run dev",
-  "installCommand": "npm install",
+  "buildCommand": "echo 'No build needed'",
   "framework": "other",
-  "outputDirectory": "public",
   "env": [
     {
       "key": "SUPABASE_URL",
@@ -14,16 +9,6 @@
     {
       "key": "SUPABASE_KEY",
       "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJtcmR1a216bGNoZ2dhdGd2d3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNjcxMDksImV4cCI6MjEwMTk0MzEwOX0.YK_qRkU4wmctOxDZ7IXVUFRnOeDU8-8a07_N61qE0ZE"
-    }
-  ],
-  "crons": [
-    {
-      "path": "/api/update-dados",
-      "schedule": "*/5 * * * *"
-    },
-    {
-      "path": "/api/check-alertas",
-      "schedule": "*/15 * * * *"
     }
   ]
 }
