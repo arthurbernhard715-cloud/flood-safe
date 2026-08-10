@@ -19,11 +19,9 @@
   ],
   "author": "Arthur",
   "license": "MIT",
-  "dependencies": {
-    "vercel": "^latest"
-  },
+  "dependencies": {},
   "devDependencies": {},
   "engines": {
-    "node": "18.x"
+    "node": "24.x"
   }
 }
