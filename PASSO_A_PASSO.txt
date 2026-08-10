@@ -1,0 +1,213 @@
+================================================================================
+                    🌊 FLOOD SAFE - PASSO A PASSO DEPLOY
+================================================================================
+
+TEMPO TOTAL: ~20 MINUTOS
+
+================================================================================
+PASSO 1: CRIAR TABELAS NO SUPABASE (5 MINUTOS)
+================================================================================
+
+1. Abra: https://supabase.com/dashboard
+
+2. Clique no seu projeto: "bmrdukmzlchggatgvwuc"
+
+3. No menu esquerdo, clique em "SQL Editor"
+
+4. Clique em "+ New Query"
+
+5. Abra o arquivo: database_schema.txt
+   (Copie TODO o conteúdo)
+
+6. Cole na caixa do SQL Editor
+
+7. Clique no botão "Run" (verde, canto direito)
+
+8. Aguarde aparecer: "✓ Success"
+
+✅ RESULTADO ESPERADO:
+   - 7 tabelas criadas
+   - 6 estações já inseridas
+   - Nenhuma mensagem de erro
+
+⚠️ SE DER ERRO:
+   - Verifique se copiou tudo o arquivo
+   - Tente novamente
+   - Se persistir, avise-me
+
+================================================================================
+PASSO 2: CRIAR REPOSITÓRIO NO GITHUB (3 MINUTOS)
+================================================================================
+
+1. Acesse: https://github.com/new
+
+2. Preencha:
+   - Repository name: flood-safe
+   - Description: Sistema de monitoramento de enchentes
+   - Public (deixe público)
+   - Clique "Create repository"
+
+3. Você será redirecionado para uma página com instruções
+
+4. Copie os comandos (veja abaixo) e execute no seu terminal:
+
+================================================================================
+PASSO 3: FAZER UPLOAD DOS ARQUIVOS (5 MINUTOS)
+================================================================================
+
+OPÇÃO A - Via Terminal (Linux/Mac):
+
+$ cd ~/Desktop  (ou qualquer pasta)
+$ git clone https://github.com/SEU_USER/flood-safe.git
+$ cd flood-safe
+$ cp /caminho/dos/arquivos/* .
+$ git add .
+$ git commit -m "Initial commit - Flood Safe setup"
+$ git push origin main
+
+OPÇÃO B - Via Terminal (Windows):
+
+> cd Users\SeuUser\Desktop
+> git clone https://github.com/SEU_USER/flood-safe.git
+> cd flood-safe
+> copy C:\caminho\dos\arquivos\* .
+> git add .
+> git commit -m "Initial commit - Flood Safe setup"
+> git push origin main
+
+OPÇÃO C - Sem Terminal (Visual):
+
+1. Acesse seu repo no GitHub
+2. Clique em "Add file" → "Upload files"
+3. Arraste os arquivos:
+   - index.html
+   - database_schema.txt
+   - api-backend.js
+   - vercel.json
+   - package.json
+4. Clique "Commit changes"
+
+✅ RESULTADO ESPERADO:
+   - 5 arquivos aparecem no seu repo GitHub
+   - Todos com conteúdo visível
+
+================================================================================
+PASSO 4: DEPLOY NO VERCEL (5 MINUTOS)
+================================================================================
+
+1. Acesse: https://vercel.com/dashboard
+
+2. Se não tem conta, crie uma (use GitHub para facilitar)
+
+3. Clique em "Add New..." → "Project"
+
+4. Selecione seu repositório "flood-safe"
+
+5. Vercel vai detectar automaticamente
+
+6. Clique em "Deploy"
+
+7. Aguarde ~2 minutos
+
+✅ RESULTADO ESPERADO:
+   - Sua URL será: https://flood-safe.vercel.app
+   - Ou similar
+   - Página com dashboard vai carregar
+   - Dados fake aparecem nos cards
+
+================================================================================
+PASSO 5: TESTAR O SITE (2 MINUTOS)
+================================================================================
+
+1. Clique na URL que o Vercel gerou
+
+2. Você deve ver:
+   ✅ Header "Flood Safe"
+   ✅ 6 cards coloridos com dados
+   ✅ Gráfico de linha
+   ✅ Mapa com 6 marcadores
+   ✅ Botões de ação
+
+3. Teste os botões (vão mostrar "em breve")
+
+4. Tudo funcionando? Perfeito! 🎉
+
+================================================================================
+PASSO 6: CONECTAR COM DADOS REAIS (FUTURO)
+================================================================================
+
+Os dados que você vê agora são FAKE (para testes).
+
+Para conectar com dados REAIS do Supabase:
+
+1. Abra vercel.json
+2. Adicione as env vars (suas credenciais Supabase)
+3. Ative o cron job que atualiza a cada 5 minutos
+4. Aguarde 5 min e dados reais aparecem
+
+(Vou te ensinar esse passo depois quando quiser ativar)
+
+================================================================================
+ESTRUTURA DE ARQUIVOS FINAL
+================================================================================
+
+flood-safe/ (seu repositório GitHub)
+├── index.html               ← Dashboard visual
+├── database_schema.txt      ← SQL para Supabase
+├── api-backend.js           ← Backend Node.js
+├── vercel.json              ← Config Vercel
+├── package.json             ← Dependências
+└── .git/                    ← Gerenciado pelo GitHub
+
+================================================================================
+CHECKLIST FINAL
+================================================================================
+
+□ Criei tabelas no Supabase
+□ Criei repositório no GitHub
+□ Fiz upload dos 5 arquivos
+□ Fiz deploy no Vercel
+□ Site está rodando em https://flood-safe.vercel.app
+□ Dashboard mostra dados (fake por enquanto)
+
+================================================================================
+PROBLEMAS COMUNS
+================================================================================
+
+❌ PROBLEMA: "Site em branco"
+✅ SOLUÇÃO: Abra F12 → Console → veja erros
+
+❌ PROBLEMA: "Arquivo não encontrado"
+✅ SOLUÇÃO: Verifique se todos 5 arquivos foram uploadados
+
+❌ PROBLEMA: "Erro ao conectar Supabase"
+✅ SOLUÇÃO: Isso é esperado por enquanto (dados são fake)
+
+❌ PROBLEMA: "Não consegui fazer git clone"
+✅ SOLUÇÃO: Use OPÇÃO C (upload visual pelo GitHub)
+
+================================================================================
+PRÓXIMOS PASSOS
+================================================================================
+
+Depois que tudo estiver funcionando, vamos:
+
+1. Conectar com dados REAIS do Supabase
+2. Adicionar sistema de LOGIN
+3. Implementar PAGAMENTO
+4. Ativar CRON JOBS (atualização automática)
+
+================================================================================
+DÚVIDAS?
+================================================================================
+
+Se der algum erro, me envie:
+- Screenshot do erro
+- URL do seu site
+- Qual passo deu erro
+
+Vou ajudar! 🚀
+
+================================================================================
+Atualizado: August 10, 2026
+================================================================================

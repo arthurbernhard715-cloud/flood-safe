@@ -1,0 +1,29 @@
+{
+  "name": "flood-safe",
+  "version": "1.0.0",
+  "description": "Sistema inteligente de monitoramento de enchentes para Sinimbu/RS",
+  "main": "api-backend.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'No build needed'",
+    "start": "node api-backend.js",
+    "test": "echo 'Testing'"
+  },
+  "keywords": [
+    "flood",
+    "monitoring",
+    "weather",
+    "sinimbu",
+    "rio-pardinho",
+    "defesa-civil"
+  ],
+  "author": "Arthur",
+  "license": "MIT",
+  "dependencies": {
+    "vercel": "^latest"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": "18.x"
+  }
+}

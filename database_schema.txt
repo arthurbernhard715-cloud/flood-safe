@@ -1,0 +1,116 @@
+-- Flood Safe Database Schema
+-- Execute isso no Supabase SQL Editor
+
+-- Tabela de Estações Meteorológicas
+CREATE TABLE IF NOT EXISTS estacoes (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  nome VARCHAR(255) NOT NULL,
+  cidade VARCHAR(255) NOT NULL,
+  latitude DECIMAL(10, 8) NOT NULL,
+  longitude DECIMAL(11, 8) NOT NULL,
+  tipo VARCHAR(50) NOT NULL, -- 'wunderground', 'unisc', 'defesa_civil'
+  id_externo VARCHAR(255) NOT NULL UNIQUE,
+  url_fonte VARCHAR(500),
+  ativa BOOLEAN DEFAULT true,
+  criada_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  atualizada_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabela de Dados Meteorológicos
+CREATE TABLE IF NOT EXISTS dados_meteorologicos (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  estacao_id UUID NOT NULL REFERENCES estacoes(id) ON DELETE CASCADE,
+  temperatura DECIMAL(5, 2),
+  umidade DECIMAL(5, 2),
+  precipitacao DECIMAL(8, 2),
+  precipitacao_acumulada_24h DECIMAL(8, 2),
+  velocidade_vento DECIMAL(5, 2),
+  direcao_vento VARCHAR(10),
+  pressao DECIMAL(7, 2),
+  ponto_orvalho DECIMAL(5, 2),
+  data_medicao TIMESTAMP NOT NULL,
+  criada_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabela de Nível de Rio
+CREATE TABLE IF NOT EXISTS nivel_rio (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  estacao_id UUID NOT NULL REFERENCES estacoes(id) ON DELETE CASCADE,
+  nivel_metros DECIMAL(5, 2) NOT NULL,
+  status VARCHAR(20), -- 'normal', 'atencao', 'alerta', 'emergencia'
+  data_medicao TIMESTAMP NOT NULL,
+  criada_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabela de Alertas
+CREATE TABLE IF NOT EXISTS alertas (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  estacao_id UUID NOT NULL REFERENCES estacoes(id) ON DELETE CASCADE,
+  tipo_alerta VARCHAR(50) NOT NULL, -- 'chuva_intensa', 'rio_subindo', 'nvel_critico'
+  mensagem TEXT NOT NULL,
+  severidade VARCHAR(20), -- 'baixa', 'media', 'alta', 'critica'
+  enviado BOOLEAN DEFAULT false,
+  data_alerta TIMESTAMP NOT NULL,
+  criada_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabela de Usuários (para sistema de login futuro)
+CREATE TABLE IF NOT EXISTS usuarios (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  email VARCHAR(255) NOT NULL UNIQUE,
+  nome VARCHAR(255) NOT NULL,
+  senha_hash VARCHAR(255),
+  tipo_plano VARCHAR(20) DEFAULT 'gratis', -- 'gratis', 'premium'
+  ativo BOOLEAN DEFAULT true,
+  criada_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  atualizada_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabela de Preferências de Alertas
+CREATE TABLE IF NOT EXISTS preferencias_alertas (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  usuario_id UUID NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  numero_whatsapp VARCHAR(20),
+  nivel_minimo_alerta VARCHAR(20) DEFAULT 'media',
+  tipos_alerta_habilitados TEXT[], -- array de tipos
+  criada_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  atualizada_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Criar Índices para Performance
+CREATE INDEX idx_dados_meteorologicos_estacao_id ON dados_meteorologicos(estacao_id);
+CREATE INDEX idx_dados_meteorologicos_data_medicao ON dados_meteorologicos(data_medicao);
+CREATE INDEX idx_nivel_rio_estacao_id ON nivel_rio(estacao_id);
+CREATE INDEX idx_nivel_rio_data_medicao ON nivel_rio(data_medicao);
+CREATE INDEX idx_alertas_estacao_id ON alertas(estacao_id);
+CREATE INDEX idx_alertas_data_alerta ON alertas(data_alerta);
+
+-- Habilitar Row Level Security (RLS)
+ALTER TABLE estacoes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE dados_meteorologicos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE nivel_rio ENABLE ROW LEVEL SECURITY;
+ALTER TABLE alertas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE usuarios ENABLE ROW LEVEL SECURITY;
+ALTER TABLE preferencias_alertas ENABLE ROW LEVEL SECURITY;
+
+-- Policies para dados públicos (sem login necessário)
+CREATE POLICY "Estações são públicas (leitura)" 
+  ON estacoes FOR SELECT 
+  USING (true);
+
+CREATE POLICY "Dados meteorológicos são públicos (leitura)" 
+  ON dados_meteorologicos FOR SELECT 
+  USING (true);
+
+CREATE POLICY "Nível de rio é público (leitura)" 
+  ON nivel_rio FOR SELECT 
+  USING (true);
+
+-- Inserir as 6 estações
+INSERT INTO estacoes (nome, cidade, latitude, longitude, tipo, id_externo, url_fonte) VALUES
+('Sinimbu - ISINIM1', 'Sinimbu', -29.54, -52.52, 'wunderground', 'ISINIM1', 'https://www.wunderground.com/dashboard/pws/ISINIM1'),
+('Venâncio Aires - IVENNC40', 'Venâncio Aires', -29.76, -51.97, 'wunderground', 'IVENNC40', 'https://www.wunderground.com/dashboard/pws/IVENNC40'),
+('UNISC Campus - Estação 22', 'Sinimbu', -29.82, -52.51, 'unisc', 'unisc_22', 'https://online.unisc.br/tempo2/22'),
+('UNISC Campus - Estação 16', 'Sinimbu', -29.82, -52.51, 'unisc', 'unisc_16', 'https://online.unisc.br/tempo2/16'),
+('UNISC Campus - Estação 17', 'Sinimbu', -29.82, -52.51, 'unisc', 'unisc_17', 'https://online.unisc.br/tempo2/17'),
+('Defesa Civil - Rio Pardinho (DCRS-00029)', 'Sinimbu', -29.54, -52.52, 'defesa_civil', 'DCRS-00029', 'https://redehidrometeorologica.defesacivil.rs.gov.br/Estacao/DCRS-00029');
