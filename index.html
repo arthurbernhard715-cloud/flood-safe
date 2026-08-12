@@ -380,15 +380,30 @@
         async function carregarDadosSupabase() {
             const region = getRegion();
             const estacoesPorRegiao = {
-                sinimbu: ['est_wund_isinim1', 'est_unisc_22', 'est_unisc_16', 'est_unisc_17'],
-                'rio-pardinho': ['est_wund_isinim1', 'est_wund_ivennc40', 'est_unisc_22']
+                sinimbu: ['ISINIM1', 'unisc_22', 'unisc_16', 'unisc_17'],
+                'rio-pardinho': ['ISINIM1', 'IVENNC40', 'unisc_22']
             };
 
-            const estacoes = estacoesPorRegiao[region] || estacoesPorRegiao.sinimbu;
+            const estacoeIds = estacoesPorRegiao[region] || estacoesPorRegiao.sinimbu;
 
             try {
+                // Buscar IDs das estações
+                const estacaoResponse = await fetch(
+                    `${SUPABASE_URL}/rest/v1/estacoes?id_externo=in.(${estacoeIds.map(e => `"${e}"`).join(',')})`,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${SUPABASE_KEY}`,
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                );
+
+                const estacoes = await estacaoResponse.json();
+                const estacaoUuids = estacoes.map(e => e.id);
+
+                // Buscar dados meteorológicos
                 const response = await fetch(
-                    `${SUPABASE_URL}/rest/v1/dados_meteorologicos?estacao_id=in.(${estacoes.map(e => `"${e}"`).join(',')})&order=data_medicao.desc&limit=100`,
+                    `${SUPABASE_URL}/rest/v1/dados_meteorologicos?estacao_id=in.(${estacaoUuids.map(e => `"${e}"`).join(',')})&order=data_medicao.desc&limit=100`,
                     {
                         headers: {
                             'Authorization': `Bearer ${SUPABASE_KEY}`,
@@ -405,21 +420,27 @@
                     const precips = dados.map(d => d.precipitacao).filter(p => p !== null);
 
                     if (temps.length > 0) {
-                        document.getElementById('temp-media').textContent = 
-                            (temps.reduce((a,b) => a+b) / temps.length).toFixed(1) + '°C';
+                        const mediaTemp = (temps.reduce((a,b) => a+b) / temps.length).toFixed(1);
+                        document.getElementById('temp-media').textContent = mediaTemp + '°C';
+                        console.log('✅ Temperatura real:', mediaTemp);
                     }
                     if (umidades.length > 0) {
-                        document.getElementById('umidade-media').textContent = 
-                            Math.round(umidades.reduce((a,b) => a+b) / umidades.length) + '%';
+                        const mediaUmidade = Math.round(umidades.reduce((a,b) => a+b) / umidades.length);
+                        document.getElementById('umidade-media').textContent = mediaUmidade + '%';
+                        console.log('✅ Umidade real:', mediaUmidade);
                     }
                     if (precips.length > 0) {
-                        document.getElementById('precip-24h').textContent = 
-                            precips.reduce((a,b) => a+b).toFixed(1) + 'mm';
+                        const totalPrecip = precips.reduce((a,b) => a+b).toFixed(1);
+                        document.getElementById('precip-24h').textContent = totalPrecip + 'mm';
+                        console.log('✅ Precipitação real:', totalPrecip);
                     }
-                    console.log('✅ Dados do Supabase carregados!');
+                    console.log('✅ Dados REAIS do Supabase carregados!', dados);
+                } else {
+                    console.log('ℹ️ Nenhum dado encontrado no Supabase');
                 }
             } catch (error) {
-                console.log('ℹ️ Usando dados simulados (Supabase pode estar vazio)');
+                console.error('❌ Erro ao carregar Supabase:', error);
+                console.log('ℹ️ Usando dados simulados como fallback');
             }
         }
 
