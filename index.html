@@ -201,6 +201,21 @@
             margin-top: 1rem;
         }
 
+        .loading-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--color-green);
+            animation: blink 1s infinite;
+            margin-left: 0.5rem;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
         @media (max-width: 768px) {
             .grid-3 {
                 grid-template-columns: 1fr;
@@ -226,7 +241,7 @@
         <div class="header-content">
             <div class="logo">
                 <div class="logo-icon">💧</div>
-                <div>Flood Safe</div>
+                <div>Flood Safe <span class="loading-indicator"></span></div>
             </div>
             <div class="region-info">
                 <div class="region-badge" id="region-display">Carregando...</div>
@@ -287,10 +302,6 @@
                     <div class="legend-color" style="background-color: #EF4444;"></div>
                     <span>Alerta (1.50-1.70m)</span>
                 </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background-color: #DC2626;"></div>
-                    <span>Emergência (&gt; 1.70m)</span>
-                </div>
             </div>
         </div>
 
@@ -314,6 +325,9 @@
     </div>
 
     <script>
+        const SUPABASE_URL = 'https://bmrdukmzlchggatgvwuc.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJtcmR1a216bGNoZ2dhdGd2d3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNjcxMDksImV4cCI6MjEwMTk0MzEwOX0.YK_qRkU4wmctOxDZ7IXVUFRnOeDU8-8a07_N61qE0ZE';
+
         const regionData = {
             sinimbu: {
                 nome: '📍 Sinimbu',
@@ -342,45 +356,71 @@
         };
 
         const riverHistorico = [
-            { hora: '00:00', nivel: 1.20 },
-            { hora: '01:00', nivel: 1.18 },
-            { hora: '02:00', nivel: 1.19 },
-            { hora: '03:00', nivel: 1.21 },
-            { hora: '04:00', nivel: 1.25 },
-            { hora: '05:00', nivel: 1.28 },
-            { hora: '06:00', nivel: 1.32 },
-            { hora: '07:00', nivel: 1.38 },
-            { hora: '08:00', nivel: 1.42 },
-            { hora: '09:00', nivel: 1.44 },
-            { hora: '10:00', nivel: 1.46 },
-            { hora: '11:00', nivel: 1.48 },
-            { hora: '12:00', nivel: 1.47 },
-            { hora: '13:00', nivel: 1.45 },
-            { hora: '14:00', nivel: 1.43 },
-            { hora: '15:00', nivel: 1.42 },
-            { hora: '16:00', nivel: 1.40 },
-            { hora: '17:00', nivel: 1.38 },
-            { hora: '18:00', nivel: 1.36 },
-            { hora: '19:00', nivel: 1.35 },
-            { hora: '20:00', nivel: 1.37 },
-            { hora: '21:00', nivel: 1.40 },
-            { hora: '22:00', nivel: 1.42 },
-            { hora: '23:00', nivel: 1.45 }
+            { hora: '00:00', nivel: 1.20 }, { hora: '01:00', nivel: 1.18 }, { hora: '02:00', nivel: 1.19 },
+            { hora: '03:00', nivel: 1.21 }, { hora: '04:00', nivel: 1.25 }, { hora: '05:00', nivel: 1.28 },
+            { hora: '06:00', nivel: 1.32 }, { hora: '07:00', nivel: 1.38 }, { hora: '08:00', nivel: 1.42 },
+            { hora: '09:00', nivel: 1.44 }, { hora: '10:00', nivel: 1.46 }, { hora: '11:00', nivel: 1.48 },
+            { hora: '12:00', nivel: 1.47 }, { hora: '13:00', nivel: 1.45 }, { hora: '14:00', nivel: 1.43 },
+            { hora: '15:00', nivel: 1.42 }, { hora: '16:00', nivel: 1.40 }, { hora: '17:00', nivel: 1.38 },
+            { hora: '18:00', nivel: 1.36 }, { hora: '19:00', nivel: 1.35 }, { hora: '20:00', nivel: 1.37 },
+            { hora: '21:00', nivel: 1.40 }, { hora: '22:00', nivel: 1.42 }, { hora: '23:00', nivel: 1.45 }
         ];
 
         const mockHistorico = [
-            { dia: 'Dom', temp: 20, precip: 2 },
-            { dia: 'Seg', temp: 21, precip: 5 },
-            { dia: 'Ter', temp: 22, precip: 8 },
-            { dia: 'Qua', temp: 21, precip: 12 },
-            { dia: 'Qui', temp: 23, precip: 6 },
-            { dia: 'Sex', temp: 24, precip: 3 },
+            { dia: 'Dom', temp: 20, precip: 2 }, { dia: 'Seg', temp: 21, precip: 5 },
+            { dia: 'Ter', temp: 22, precip: 8 }, { dia: 'Qua', temp: 21, precip: 12 },
+            { dia: 'Qui', temp: 23, precip: 6 }, { dia: 'Sex', temp: 24, precip: 3 },
             { dia: 'Sab', temp: 23, precip: 10 }
         ];
 
         function getRegion() {
-            const params = new URLSearchParams(window.location.search);
-            return params.get('region') || 'sinimbu';
+            return new URLSearchParams(window.location.search).get('region') || 'sinimbu';
+        }
+
+        async function carregarDadosSupabase() {
+            const region = getRegion();
+            const estacoesPorRegiao = {
+                sinimbu: ['est_wund_isinim1', 'est_unisc_22', 'est_unisc_16', 'est_unisc_17'],
+                'rio-pardinho': ['est_wund_isinim1', 'est_wund_ivennc40', 'est_unisc_22']
+            };
+
+            const estacoes = estacoesPorRegiao[region] || estacoesPorRegiao.sinimbu;
+
+            try {
+                const response = await fetch(
+                    `${SUPABASE_URL}/rest/v1/dados_meteorologicos?estacao_id=in.(${estacoes.map(e => `"${e}"`).join(',')})&order=data_medicao.desc&limit=100`,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${SUPABASE_KEY}`,
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                );
+
+                const dados = await response.json();
+
+                if (dados && dados.length > 0) {
+                    const temps = dados.map(d => d.temperatura).filter(t => t !== null);
+                    const umidades = dados.map(d => d.umidade).filter(u => u !== null);
+                    const precips = dados.map(d => d.precipitacao).filter(p => p !== null);
+
+                    if (temps.length > 0) {
+                        document.getElementById('temp-media').textContent = 
+                            (temps.reduce((a,b) => a+b) / temps.length).toFixed(1) + '°C';
+                    }
+                    if (umidades.length > 0) {
+                        document.getElementById('umidade-media').textContent = 
+                            Math.round(umidades.reduce((a,b) => a+b) / umidades.length) + '%';
+                    }
+                    if (precips.length > 0) {
+                        document.getElementById('precip-24h').textContent = 
+                            precips.reduce((a,b) => a+b).toFixed(1) + 'mm';
+                    }
+                    console.log('✅ Dados do Supabase carregados!');
+                }
+            } catch (error) {
+                console.log('ℹ️ Usando dados simulados (Supabase pode estar vazio)');
+            }
         }
 
         function initDashboard() {
@@ -398,6 +438,7 @@
             carregarGraficoRio();
             carregarGrafico();
             inicializarMapa(data.estacoes);
+            carregarDadosSupabase();
         }
 
         function carregarEstacoes(estacoes) {
@@ -452,8 +493,7 @@
                             backgroundColor: 'rgba(6, 182, 212, 0.1)',
                             tension: 0.4,
                             fill: true,
-                            pointRadius: 4,
-                            pointBackgroundColor: '#06B6D4'
+                            pointRadius: 4
                         },
                         {
                             label: 'Cota Normal',
@@ -487,18 +527,10 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { labels: { color: '#9CA3AF' } }
-                    },
+                    plugins: { legend: { labels: { color: '#9CA3AF' } } },
                     scales: {
-                        y: {
-                            grid: { color: 'rgba(6, 182, 212, 0.1)' },
-                            ticks: { color: '#9CA3AF' }
-                        },
-                        x: {
-                            grid: { color: 'rgba(6, 182, 212, 0.1)' },
-                            ticks: { color: '#9CA3AF' }
-                        }
+                        y: { grid: { color: 'rgba(6, 182, 212, 0.1)' }, ticks: { color: '#9CA3AF' } },
+                        x: { grid: { color: 'rgba(6, 182, 212, 0.1)' }, ticks: { color: '#9CA3AF' } }
                     }
                 }
             });
@@ -532,9 +564,7 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { labels: { color: '#9CA3AF' } }
-                    },
+                    plugins: { legend: { labels: { color: '#9CA3AF' } } },
                     scales: {
                         y: { grid: { color: 'rgba(6, 182, 212, 0.1)' }, ticks: { color: '#9CA3AF' } },
                         y1: { position: 'right', grid: { drawOnChartArea: false }, ticks: { color: '#9CA3AF' } },
